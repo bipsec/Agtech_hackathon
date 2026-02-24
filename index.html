@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AgTech Hackathon 2026</title>
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="Task1/css/styles.css">
+  <link rel="stylesheet" href="Task2/css/styles.css">
+</head>
+<body>
+
+<!-- ═══════════ SIDEBAR ═══════════ -->
+<div class="sidebar" id="sidebar">
+  <h2 class="sidebar-brand">CropScouts</h2>
+
+  <div class="task-selector">
+    <label class="task-label" for="taskSelect">Active Task</label>
+    <select id="taskSelect" class="task-dropdown">
+      <option value="task1">Subplot Detection</option>
+      <option value="task2">Weed Detection</option>
+      <option value="task3">Corn Stand Count</option>
+    </select>
+  </div>
+
+  <!-- ─── Task 1 sidebar ─── -->
+  <div class="task-sidebar" id="task1Sidebar">
+    <div class="drone-dock" id="droneDock">
+      <img class="drone-icon" id="droneSrc" src="media/drone-icon.png" alt="Drone">
+      <div class="label">Survey Drone</div>
+      <div class="hint">Drag me over the field<br>to reveal subplots</div>
+    </div>
+
+    <div class="progress-wrap">
+      <div class="progress-label">
+        <span>Revealed</span>
+        <span id="progressText">0 / 60</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+
+    <div class="sidebar-stats" id="t1Stats">
+      <div class="stat-row"><span class="s-label">Subplots</span><span class="s-value">60</span></div>
+      <div class="stat-row"><span class="s-label">Crops</span><span class="s-value">5</span></div>
+      <div class="stat-row"><span class="s-label">Source</span><span class="s-value">COCO JSON</span></div>
+      <div class="stat-row"><span class="s-label">Field</span><span class="s-value" id="fieldDims">–</span></div>
+    </div>
+
+    <div class="legend" id="t1Legend">
+      <div class="legend-title">Crop Types</div>
+      <div class="legend-item"><div class="legend-swatch" style="background:#f59e0b"></div>Corn</div>
+      <div class="legend-item"><div class="legend-swatch" style="background:#10b981"></div>Wheat</div>
+      <div class="legend-item"><div class="legend-swatch" style="background:#3b82f6"></div>Soybeans</div>
+      <div class="legend-item"><div class="legend-swatch" style="background:#ec4899"></div>Dry beans</div>
+      <div class="legend-item"><div class="legend-swatch" style="background:#8b5cf6"></div>Buckwheat</div>
+    </div>
+
+    <button class="reset-btn" id="resetBtn">Reset Field</button>
+  </div>
+
+  <!-- ─── Task 2 sidebar ─── -->
+  <div class="task-sidebar" id="task2Sidebar" style="display:none">
+    <div class="t2-filter">
+      <label class="task-label" for="t2ModelSelect">Model</label>
+      <select id="t2ModelSelect" class="task-dropdown" disabled>
+        <option value="YOLOv8-seg" selected>YOLOv8-seg</option>
+      </select>
+    </div>
+
+    <div class="t2-filter">
+      <label class="task-label" for="t2CropFilter">Filter by Crop</label>
+      <select id="t2CropFilter" class="task-dropdown">
+        <option value="all">All Crops</option>
+        <option value="Corn" selected>Corn</option>
+        <option value="Wheat">Wheat</option>
+        <option value="Soybeans">Soybeans</option>
+        <option value="Dry beans">Dry beans</option>
+        <option value="Buckwheat">Buckwheat</option>
+      </select>
+    </div>
+
+    <div class="t2-filter">
+      <label class="task-label" for="t2TreatFilter">Filter by Treatment</label>
+      <select id="t2TreatFilter" class="task-dropdown">
+        <option value="all">All Treatments</option>
+        <option value="Einbock">Einbock</option>
+        <option value="Tine weed">Tine weed</option>
+        <option value="Control">Control</option>
+      </select>
+    </div>
+
+    <div class="legend" id="t2Legend">
+      <div class="legend-title">Detection Classes</div>
+      <div class="legend-item"><div class="legend-swatch" style="background:#ef4444"></div>Weed</div>
+      <div class="legend-item"><div class="legend-swatch" style="background:#3b82f6"></div>Corn</div>
+    </div>
+  </div>
+
+  <!-- ─── Task 3 sidebar ─── -->
+  <div class="task-sidebar" id="task3Sidebar" style="display:none">
+    <div class="t2-filter">
+      <div class="task-label">Corn Stand Count</div>
+      <div style="font-size:.75rem;color:#64748b">Corn count overview by subplot</div>
+    </div>
+
+    <div class="t2-filter">
+      <label class="task-label" for="t3CropFilter">Filter by Crop</label>
+      <select id="t3CropFilter" class="task-dropdown">
+        <option value="all">All Crops</option>
+        <option value="Corn" selected>Corn</option>
+        <option value="Wheat">Wheat</option>
+        <option value="Soybeans">Soybeans</option>
+        <option value="Dry beans">Dry beans</option>
+        <option value="Buckwheat">Buckwheat</option>
+      </select>
+    </div>
+
+    <div class="t2-filter">
+      <label class="task-label" for="t3TreatFilter">Filter by Treatment</label>
+      <select id="t3TreatFilter" class="task-dropdown">
+        <option value="all">All Treatments</option>
+        <option value="Einbock">Einbock</option>
+        <option value="Tine weed">Tine weed</option>
+        <option value="Control">Control</option>
+      </select>
+    </div>
+
+    <div class="legend" id="t3Legend">
+      <div class="legend-title">Detection Classes</div>
+      <div class="legend-item"><div class="legend-swatch" style="background:#ef4444"></div>Weed</div>
+      <div class="legend-item"><div class="legend-swatch" style="background:#3b82f6"></div>Corn</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ MAIN CONTENT ═══════════ -->
+
+<!-- Task 1: Subplot Detection -->
+<div class="task-view" id="task1View">
+  <div class="main">
+    <h1>Subplot Detection</h1>
+    <p class="subtitle">Subplot polygons from CropScouts_Subplot.json fitted over field imagery</p>
+    <div class="field-container">
+      <svg class="field-svg" id="fieldSvg" xmlns="http://www.w3.org/2000/svg"></svg>
+    </div>
+  </div>
+
+  <div class="detail-panel" id="detailPanel">
+    <div class="dp-header">Subplot Details</div>
+    <div class="dp-body" id="detailBody">
+      <div class="dp-empty">Drag the drone over the field<br>and hover a revealed subplot</div>
+    </div>
+  </div>
+</div>
+
+<!-- Task 2: Weed Detection -->
+<div class="task-view" id="task2View" style="display:none">
+  <div class="main t2-main">
+    <h1>Weed Detection</h1>
+    <p class="subtitle">YOLO segmentation results &mdash; click any subplot row to view detection images</p>
+    <div class="t2-content">
+      <div class="t2-split">
+        <!-- Image viewer (shown when a row is clicked) -->
+        <div class="t2-viewer" id="t2Viewer">
+        <div class="t2-viewer-header">
+          <div class="t2-viewer-title" id="t2ViewerTitle">
+            Select a subplot above
+            <span class="t2-model-pill" id="t2ModelLabel">YOLOv8-seg</span>
+          </div>
+            <div class="t2-viewer-tabs">
+              <button class="t2-tab active" data-panel="composite">Composite</button>
+              <button class="t2-tab" data-panel="crop_img">Original</button>
+              <button class="t2-tab" data-panel="overlay">Overlay</button>
+              <button class="t2-tab" data-panel="mask">Mask</button>
+            </div>
+          </div>
+          <div class="t2-viewer-body" id="t2ViewerBody">
+            <div class="t2-viewer-empty">Click a subplot row to view detection results</div>
+          </div>
+        </div>
+
+        <div class="t2-table-wrap">
+          <table class="t2-table" id="t2Table">
+            <thead>
+            <tr>
+              <th>Subplot</th>
+              <th>Crop</th>
+              <th>Treatment</th>
+              <th>Row</th>
+              <th>Col</th>
+              <th class="t2-bar-col">Distribution</th>
+            </tr>
+            </thead>
+            <tbody id="t2Body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Task 3: Corn Stand Count -->
+<div class="task-view" id="task3View" style="display:none">
+  <div class="main t2-main">
+    <h1>Corn Stand Count</h1>
+    <p class="subtitle">Overlay view and corn count by subplot</p>
+    <div class="t2-content">
+      <div class="t2-split">
+        <div class="t2-viewer" id="t3Viewer">
+          <div class="t2-viewer-header">
+            <div class="t2-viewer-title" id="t3ViewerTitle">Select a subplot</div>
+          </div>
+          <div class="t2-viewer-body" id="t3ViewerBody">
+            <div class="t2-viewer-empty">Click a subplot row to view overlay</div>
+          </div>
+        </div>
+
+        <div class="t2-table-wrap">
+          <table class="t2-table" id="t3Table">
+            <thead>
+              <tr>
+                <th>Subplot</th>
+                <th>Crop</th>
+                <th>Corn Count</th>
+              </tr>
+            </thead>
+            <tbody id="t3Body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ OVERLAYS ═══════════ -->
+<div class="flying-drone" id="flyingDrone"><img src="media/drone-icon.png" alt="Drone"></div>
+<div class="drone-radius" id="droneRadius"></div>
+<div class="tooltip" id="tooltip"></div>
+
+<!-- ═══════════ SCRIPTS ═══════════ -->
+<script src="js/main.js"></script>
+
+<!-- Task 1 -->
+<script src="Task1/js/config.js"></script>
+<script src="Task1/js/subplot_polygons.js"></script>
+<script src="Task1/js/tooltip.js"></script>
+<script src="Task1/js/grid.js"></script>
+<script src="Task1/js/drone.js"></script>
+<script src="Task1/js/app.js"></script>
+
+<!-- Task 2 -->
+<script src="Task2/js/weed_data.js"></script>
+<script src="Task2/js/weed-app.js"></script>
+
+<!-- Task 3 -->
+<script src="Task3/js/task3.js"></script>
+
+</body>
+</html>

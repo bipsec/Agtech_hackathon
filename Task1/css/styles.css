@@ -1,0 +1,225 @@
+/* ═══════════ TASK 1: SUBPLOT DETECTION ═══════════ */
+
+/* Drone dock */
+.drone-dock {
+  width: 100%; padding: .8rem;
+  background: #ffffff; border: 2px dashed #cbd5e1;
+  border-radius: 12px;
+  display: flex; flex-direction: column;
+  align-items: center; gap: .5rem;
+  cursor: grab;
+  transition: border-color .2s, background .2s;
+}
+.drone-dock:hover { border-color: #3b82f6; background: #eff6ff; }
+.drone-dock:active { cursor: grabbing; }
+.drone-dock .label { font-size: .7rem; color: #475569; }
+.drone-dock .hint { font-size: .62rem; color: #94a3b8; text-align: center; line-height: 1.4; }
+
+.drone-icon {
+  width: 56px; height: 56px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 8px rgba(37,99,235,.35));
+  transition: transform .15s;
+  pointer-events: none;
+}
+.drone-dock:hover .drone-icon { transform: scale(1.1) rotate(-5deg); }
+
+/* Progress bar */
+.progress-wrap { width: 100%; }
+.progress-label {
+  display: flex; justify-content: space-between;
+  font-size: .7rem; color: #475569; margin-bottom: 4px;
+}
+.progress-bar {
+  width: 100%; height: 7px; background: #e2e8f0;
+  border-radius: 4px; overflow: hidden;
+}
+.progress-fill {
+  height: 100%; width: 0%;
+  background: linear-gradient(90deg, #34d399, #60a5fa);
+  border-radius: 4px; transition: width .3s ease;
+}
+
+.reset-btn {
+  padding: .45rem 1rem;
+  background: #dc2626; color: #fff;
+  border: none; border-radius: 8px;
+  font-size: .75rem; font-weight: 600;
+  cursor: pointer; transition: background .15s;
+  width: 100%;
+}
+.reset-btn:hover { background: #ef4444; }
+
+/* ─── Field SVG ─── */
+.field-container {
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+  flex: 1; width: 100%; min-height: 0;
+}
+.field-svg {
+  width: 100%; height: 100%;
+  max-height: calc(100vh - 90px);
+  border: 2px solid #ffffff;
+  border-radius: 10px;
+  background: #ffffff;
+  box-shadow: 0 4px 24px rgba(0,0,0,.2);
+  overflow: hidden;
+}
+.field-bg { opacity: 1; pointer-events: none; }
+
+/* ─── SVG Subplot cells ─── */
+.subplot-cell { cursor: default; }
+.cell-poly {
+  stroke-width: 18; stroke-opacity: 0.8; fill-opacity: 0.45;
+  transition: fill-opacity .3s, stroke-width .2s, stroke-opacity .3s;
+}
+.cell-cover {
+  fill: rgba(15, 23, 42, 0.72);
+  stroke: rgba(255,255,255,0.2); stroke-width: 8;
+  transition: fill-opacity .4s ease, fill .2s;
+}
+.q-mark {
+  text-anchor: middle; dominant-baseline: central;
+  font-weight: 900; fill: rgba(255,255,255,.6);
+  opacity: 0; transition: opacity .2s; pointer-events: none;
+}
+.cell-id-label {
+  text-anchor: middle; dominant-baseline: central;
+  font-weight: 800; opacity: 0; transition: opacity .4s;
+  pointer-events: none; paint-order: stroke; stroke-linejoin: round;
+  stroke: #ffffff; stroke-width: 26px;
+}
+.cell-crop-label {
+  text-anchor: middle; dominant-baseline: central;
+  font-weight: 700; opacity: 0; transition: opacity .4s;
+  pointer-events: none; paint-order: stroke; stroke-linejoin: round;
+  stroke: #ffffff; stroke-width: 20px;
+}
+
+/* Speech bubble */
+.speech-bubble { opacity: 0; transition: opacity .25s ease; pointer-events: none; }
+.bubble-bg {
+  fill: url(#t1-bubble-gradient);
+  stroke: #fb923c; stroke-width: 12;
+  filter: drop-shadow(0 16px 28px rgba(124,45,18,.25));
+}
+.bubble-tail { fill: #fed7aa; stroke: #fb923c; stroke-width: 8; stroke-linejoin: round; }
+.bubble-text {
+  text-anchor: middle; dominant-baseline: central;
+  font-weight: 900; font-style: normal;
+  font-family: "Trebuchet MS", "Gill Sans", "Verdana", sans-serif;
+  letter-spacing: .02em;
+  fill: #7c2d12;
+  paint-order: stroke;
+  stroke: #ffffff;
+  stroke-width: 6;
+}
+
+.subplot-cell:hover .q-mark { opacity: 1; }
+.subplot-cell:hover .speech-bubble { opacity: 1; }
+.subplot-cell:hover .cell-cover { fill: rgba(15, 23, 42, 0.45); }
+.subplot-cell.revealed .speech-bubble { display: none; }
+.subplot-cell.revealed .cell-cover { fill-opacity: 0; stroke-opacity: 0; pointer-events: none; }
+.subplot-cell.revealed .q-mark { display: none; }
+.subplot-cell.revealed .cell-id-label { opacity: 1; }
+.subplot-cell.revealed .cell-crop-label { opacity: 1; }
+.subplot-cell.revealed .cell-poly {
+  fill-opacity: 0.35; stroke-opacity: 1; stroke-width: 24;
+  filter: drop-shadow(0 12px 40px rgba(0,0,0,.45));
+}
+.subplot-cell.revealed:hover .cell-poly {
+  fill-opacity: 0.55; stroke-width: 36; stroke: #ffffff;
+  filter: drop-shadow(0 16px 60px rgba(0,0,0,.5));
+}
+.subplot-cell.dp-active .cell-poly {
+  stroke: #ffffff !important; stroke-width: 40 !important;
+  fill-opacity: 0.6 !important;
+  filter: drop-shadow(0 0 70px rgba(255,255,255,.45)) !important;
+}
+
+/* ─── Detail panel ─── */
+.detail-panel {
+  width: 260px; min-width: 260px;
+  background: #f8fafc;
+  border-left: 2px solid #e2e8f0;
+  display: flex; flex-direction: column;
+  z-index: 50; height: 100vh;
+}
+.dp-header {
+  padding: 1rem .8rem .6rem; font-size: .85rem; font-weight: 700;
+  color: #334155; text-transform: uppercase;
+  letter-spacing: .06em; border-bottom: 1px solid #e2e8f0;
+}
+.dp-body { flex: 1; padding: .8rem; overflow-y: auto; }
+.dp-empty {
+  color: #94a3b8; font-size: .78rem; text-align: center;
+  padding: 1.5rem .5rem; line-height: 1.6;
+}
+.dp-card {
+  background: #ffffff; border: 1px solid #e2e8f0;
+  border-radius: 10px; overflow: hidden;
+  animation: dpSlideIn .3s ease;
+}
+@keyframes dpSlideIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.dp-card-header {
+  padding: .7rem .8rem; color: #fff;
+  display: flex; align-items: center; gap: .5rem;
+}
+.dp-card-header .dp-id { font-size: 1.2rem; font-weight: 800; text-shadow: 0 1px 4px rgba(0,0,0,.3); }
+.dp-card-header .dp-crop-name { font-size: .8rem; font-weight: 600; opacity: .9; }
+.dp-rows { padding: .5rem 0; }
+.dp-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: .4rem .8rem; border-bottom: 1px solid #f1f5f9;
+}
+.dp-row:last-child { border-bottom: none; }
+.dp-row-label { font-size: .68rem; color: #64748b; font-weight: 500; }
+.dp-row-value { font-size: .74rem; color: #0f172a; font-weight: 700; }
+.dp-section-title {
+  padding: .3rem .8rem 0; font-size: .58rem; font-weight: 700;
+  color: #94a3b8; text-transform: uppercase; letter-spacing: .08em;
+}
+.dp-position {
+  margin: .5rem .8rem; padding: .5rem .6rem;
+  background: #f1f5f9; border-radius: 8px;
+  display: grid; grid-template-columns: 1fr 1fr 1fr;
+  gap: .3rem; text-align: center;
+}
+.dp-pos-item { display: flex; flex-direction: column; gap: 2px; }
+.dp-pos-label { font-size: .55rem; color: #94a3b8; font-weight: 600; text-transform: uppercase; }
+.dp-pos-val { font-size: .85rem; color: #1e293b; font-weight: 800; }
+.dp-coco .dp-row-value { font-size: .68rem; }
+.dp-mono { font-family: 'SF Mono','Fira Code','Consolas', monospace !important; font-size: .55rem !important; }
+.dp-dims {
+  margin: .3rem .8rem .6rem; padding: .4rem .6rem;
+  background: linear-gradient(135deg, #eff6ff, #f0fdf4);
+  border-radius: 8px; text-align: center;
+  font-size: .68rem; color: #475569;
+}
+.dp-dims strong { color: #1e293b; }
+
+/* ─── Flying drone ─── */
+.flying-drone {
+  position: fixed; width: 86px; height: 86px;
+  pointer-events: none; z-index: 1000;
+  filter: drop-shadow(0 6px 18px rgba(37,99,235,.35));
+  display: none; transition: none;
+}
+.flying-drone img { width: 100%; height: 100%; object-fit: contain; }
+.flying-drone.active { display: block; animation: droneFloat 2.6s ease-in-out infinite; }
+.drone-radius {
+  position: fixed; pointer-events: none; z-index: 999;
+  border: 2px dashed rgba(37,99,235,.4); border-radius: 50%; display: none;
+}
+.drone-radius.active { display: block; animation: radarPulse 1.5s infinite; }
+@keyframes radarPulse {
+  0%, 100% { box-shadow: 0 0 15px rgba(37,99,235,.12); }
+  50% { box-shadow: 0 0 30px rgba(37,99,235,.25); }
+}
+@keyframes droneFloat {
+  0%, 100% { transform: translateY(0) rotate(-1deg); }
+  50% { transform: translateY(-6px) rotate(1deg); }
+}
